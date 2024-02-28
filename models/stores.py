@@ -1,5 +1,4 @@
-from sqlalchemy import Column, Numeric, String
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import Column, String
 
 from models.base import BaseModel
 
