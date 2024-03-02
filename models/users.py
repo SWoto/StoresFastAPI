@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, select
+from sqlalchemy import Column, String, select, Boolean
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.base import BaseModel
@@ -13,6 +13,7 @@ class UsersModel(BaseModel):
     document = Column(String(50), unique=True, index=True)
     email = Column(String(256), unique=True, index=True)
     password = Column(String(256), nullable=False)
+    admin = Column(Boolean, default=False)
 
     def __init__(self, *args, **kwargs):
         super(UsersModel, self).__init__(*args, **kwargs)

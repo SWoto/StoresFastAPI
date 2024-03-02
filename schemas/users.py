@@ -7,6 +7,7 @@ class PlainUserSchema(BaseModel):
     document: str | int
     first_name: str
     sur_name: str
+    admin: bool
 
     class Config:
         from_attributes = True
