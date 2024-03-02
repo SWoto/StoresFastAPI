@@ -1,12 +1,12 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.base import BaseModel
 from core.security import generate_hashed_password
 
 
-class ClientsModel(BaseModel):
-    __tablename__ = 'clients'
+class UsersModel(BaseModel):
+    __tablename__ = 'users'
 
     first_name = Column(String(256), nullable=False)
     sur_name = Column(String(256), nullable=False)
@@ -15,15 +15,20 @@ class ClientsModel(BaseModel):
     password = Column(String(256), nullable=False)
 
     def __init__(self, *args, **kwargs):
-        super(ClientsModel, self).__init__(*args, **kwargs)
+        super(UsersModel, self).__init__(*args, **kwargs)
         self.password = generate_hashed_password(kwargs["password"])
+
+    def __repr__(self):
+        return f"<UsersModel(id={self.id}, first_name={self.first_name}, sur_name={self.sur_name}, document={self.document}, email={self.email}, reated_on={self.created_on}, modified_on={self.modified_on})>"
 
     @classmethod
     async def find_by_email(cls, email: str, db: AsyncSession):
-        async with db as session:
-            return session.query(cls).filter_by(email=email).unique().one_or_none()
+        query = select(cls).filter_by(email=email).limit(1)
+        result = await db.execute(query)
+        return result.one_or_none()
 
     @classmethod
     async def find_by_document(cls, document: str, db: AsyncSession):
-        async with db as session:
-            return session.query(cls).filter_by(document=document).unique().one_or_none()
+        query = select(cls).filter_by(document=document).limit(1)
+        result = await db.execute(query)
+        return result.one_or_none()

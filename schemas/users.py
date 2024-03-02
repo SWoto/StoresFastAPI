@@ -2,7 +2,7 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, UUID4
 
 
-class PlainClientSchema(BaseModel):
+class PlainUserSchema(BaseModel):
     email: EmailStr
     document: str | int
     first_name: str
@@ -12,15 +12,15 @@ class PlainClientSchema(BaseModel):
         from_attributes = True
 
 
-class PostPutClientSchema(PlainClientSchema):
+class PostPutUserSchema(PlainUserSchema):
     password: str
 
 
-class ReturnClientSchema(PlainClientSchema):
+class ReturnUserSchema(PlainUserSchema):
     id: UUID4
 
 
-class LoginClientSchema(BaseModel):
+class LoginUserSchema(BaseModel):
     email: EmailStr
     password: str
 
