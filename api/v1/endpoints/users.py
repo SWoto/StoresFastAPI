@@ -1,12 +1,13 @@
 from typing import Annotated
-import uuid
+from fastapi.responses import JSONResponse
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from models.users import UsersModel
+from models import UsersModel
 from schemas.users import PostPutUserSchema, ReturnUserSchema
 from core.deps import get_session
+from core.auth import authenticate_user, create_access_token, Token
 
 router = APIRouter()
 
@@ -30,3 +31,14 @@ async def post_user(user: PostPutUserSchema, db: Annotated[AsyncSession, Depends
         await session.commit()
 
     return new_user
+
+
+@router.post('/login')
+async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[AsyncSession, Depends(get_session)]) -> Token:
+    user = await authenticate_user(email=form_data.username, password=form_data.password, db=db)
+
+    if not user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+
+    return Token(access_token=create_access_token(
+        subject=str(user.id)), token_type='bearer')

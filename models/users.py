@@ -20,16 +20,16 @@ class UsersModel(BaseModel):
         self.password = generate_hashed_password(kwargs["password"])
 
     def __repr__(self):
-        return f"<UsersModel(id={self.id}, first_name={self.first_name}, sur_name={self.sur_name}, document={self.document}, email={self.email}, reated_on={self.created_on}, modified_on={self.modified_on})>"
+        return f"<UsersModel(id={self.id}, first_name={self.first_name}, sur_name={self.sur_name}, document={self.document}, email={self.email}, created_on={self.created_on}, modified_on={self.modified_on}, admin={self.admin})>"
 
     @classmethod
     async def find_by_email(cls, email: str, db: AsyncSession):
         query = select(cls).filter_by(email=email).limit(1)
         result = await db.execute(query)
-        return result.one_or_none()
+        return result.scalars().unique().one_or_none()
 
     @classmethod
     async def find_by_document(cls, document: str, db: AsyncSession):
         query = select(cls).filter_by(document=document).limit(1)
         result = await db.execute(query)
-        return result.one_or_none()
+        return result.scalars().unique().one_or_none()
