@@ -4,9 +4,8 @@
     },
     "[python]": {
         "editor.defaultFormatter": "ms-python.autopep8",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
     },
-
     "python.testing.cwd": "${workspaceFolder}/src",
     "python.testing.pytestArgs": [
         "tests",

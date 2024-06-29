@@ -10,7 +10,7 @@ from src.core.configs import settings
 import src.models
 
 
-engine = create_async_engine(settings.DB_URL)
+engine = create_async_engine(settings.DATABASE_URL)
 
 
 async def create_tables():
