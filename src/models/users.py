@@ -1,8 +1,8 @@
-from sqlalchemy import Column, String, select, Boolean
+from sqlalchemy import Column, String, select, Boolean, LargeBinary
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.base import BaseModel
-from core.security import generate_hashed_password
+from src.models.base import BaseModel
+from src.core.security import generate_hashed_password
 
 
 class UsersModel(BaseModel):
@@ -12,7 +12,7 @@ class UsersModel(BaseModel):
     sur_name = Column(String(256), nullable=False)
     document = Column(String(50), unique=True, index=True)
     email = Column(String(256), unique=True, index=True)
-    password = Column(String(256), nullable=False)
+    password = Column(LargeBinary, nullable=False)
     admin = Column(Boolean, default=False)
 
     def __init__(self, *args, **kwargs):
@@ -24,12 +24,12 @@ class UsersModel(BaseModel):
 
     @classmethod
     async def find_by_email(cls, email: str, db: AsyncSession):
-        query = select(cls).filter_by(email=email).limit(1)
+        query = select(cls).filter_by(email=email)
         result = await db.execute(query)
         return result.scalars().unique().one_or_none()
 
     @classmethod
     async def find_by_document(cls, document: str, db: AsyncSession):
-        query = select(cls).filter_by(document=document).limit(1)
+        query = select(cls).filter_by(document=document)
         result = await db.execute(query)
         return result.scalars().unique().one_or_none()

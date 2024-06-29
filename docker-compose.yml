@@ -1,0 +1,32 @@
+services:
+  database:
+    image: 'postgres:16-alpine'
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    env_file:
+      - core/.env
+    volumes:
+      - ./database/db-data/:/var/lib/postgresql/data/
+
+  database-test:
+    image: 'postgres:16-alpine'
+    restart: unless-stopped
+    ports:
+      - '5433:5432'
+    env_file:
+      - core/.env
+    volumes:
+      - ./database/db-test-data/:/var/lib/postgresql/data/
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    ports:
+      - '15433:80'
+    env_file:
+      - core/.env
+    depends_on:
+      - database
+    volumes:
+      - ./database/pgadmin-data/:/var/lib/pgadmin/

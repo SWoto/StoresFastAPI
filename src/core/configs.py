@@ -1,6 +1,6 @@
 from typing import Any
 from pydantic_settings import BaseSettings
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 
 
 # TODO: Should i use singleton for this?
@@ -13,8 +13,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60*24*7  # 1 week
 
-    class Config:
-        case_sensitive = True
+    model_config = dict(case_sensitive=True)
 
 
 settings: Settings = Settings()

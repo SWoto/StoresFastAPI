@@ -9,8 +9,7 @@ class PlainUserSchema(BaseModel):
     sur_name: str
     admin: bool
 
-    class Config:
-        from_attributes = True
+    model_config = dict(from_attributes=True)
 
 
 class PostPutUserSchema(PlainUserSchema):
@@ -25,5 +24,4 @@ class LoginUserSchema(BaseModel):
     email: EmailStr
     password: str
 
-    class Config:
-        from_attributes = True
+    model_config = dict(from_attributes=True)

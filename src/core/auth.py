@@ -7,9 +7,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from jose import jwt
 from pydantic import BaseModel, EmailStr
 
-from models import UsersModel
-from core.configs import settings
-from core.security import check_password
+from src.models import UsersModel
+from src.core.configs import settings
+from src.core.security import check_password
 
 oauth2_schema = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/users/login"
