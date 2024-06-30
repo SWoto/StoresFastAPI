@@ -9,26 +9,30 @@ from functools import lru_cache
 
 
 class BaseConfig(BaseSettings):
-    API_V1_STR: str = '/api/v1'
     ENV_STATE: Optional[str] = None
 
     """Loads the dotenv file. Including this is necessary to get
     pydantic to load a .env file."""
-    model_config = SettingsConfigDict(env_file=".env")
+    # TODO: Set extra=True due to be using only one file, but later this should be removed.
+    model_config = SettingsConfigDict(
+        env_file="src/core/.env", case_sensitive=True, extra='ignore')
 
 
-class GlobalConfig(BaseSettings):
-    DATABASE_URL: Optional[str] = None
+class GlobalConfig(BaseConfig):
+    API_V1_STR: str = '/api/v1'
+
     JWT_SECRET: str = secrets.token_hex(64)
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60*24*7  # 1 week
+
+    DATABASE_URL: Optional[str] = None
     POSTGRES_USER: Optional[str] = None
     POSTGRES_PASSWORD: Optional[str] = None
     POSTGRES_DB: Optional[str] = None
     POSTGRES_PORT: Optional[int] = None
     POSTGRES_HOST: Optional[str] = None
 
-    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
+    DBBaseModel: Any = declarative_base()
 
     def __init__(self):
         super(GlobalConfig, self).__init__()

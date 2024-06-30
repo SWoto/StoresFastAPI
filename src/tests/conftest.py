@@ -1,3 +1,6 @@
+from src.main import app
+from src.core.database import engine, create_tables, drop_tables, Session
+from src.core.configs import settings
 import os
 import pytest
 from typing import AsyncGenerator, Generator
@@ -8,9 +11,6 @@ from httpx import AsyncClient, ASGITransport
 
 os.environ["ENV_STATE"] = "test"
 
-from src.core.configs import settings
-from src.core.database import engine, create_tables, drop_tables, Session
-from src.main import app
 
 @pytest.fixture(scope="session")
 def anyio_backend():

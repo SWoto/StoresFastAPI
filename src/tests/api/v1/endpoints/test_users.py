@@ -10,7 +10,7 @@ class TestUser():
     @staticmethod
     async def register_user(async_client: AsyncClient, user_data: dict) -> dict:
         return await async_client.post(
-            "/api/v1/users/", json={**user_data}
+            "/api/v1/users/signup", json={**user_data}
         )
 
     @staticmethod

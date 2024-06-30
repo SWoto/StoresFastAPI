@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr, UUID4
+from pydantic import BaseModel, EmailStr, UUID4, field_validator
 
 
 class PlainUserSchema(BaseModel):
@@ -10,6 +10,10 @@ class PlainUserSchema(BaseModel):
     admin: bool
 
     model_config = dict(from_attributes=True)
+
+    @field_validator("document", mode='before')
+    def transform_id_to_str(cls, value) -> str:
+        return str(value)
 
 
 class PostPutUserSchema(PlainUserSchema):

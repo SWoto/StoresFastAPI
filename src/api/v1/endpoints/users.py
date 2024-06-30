@@ -12,7 +12,7 @@ from src.core.auth import authenticate_user, create_access_token, Token
 router = APIRouter()
 
 
-@router.post('/', status_code=status.HTTP_201_CREATED, response_model=ReturnUserSchema)
+@router.post('/signup', status_code=status.HTTP_201_CREATED, response_model=ReturnUserSchema)
 async def post_user(user: PostPutUserSchema, db: Annotated[AsyncSession, Depends(get_session)]):
     post_data = user.model_dump()
     new_user = UsersModel(**post_data)
