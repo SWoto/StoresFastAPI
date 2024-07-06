@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.models import UsersModel
 from src.schemas.users import PostPutUserSchema, ReturnUserSchema
 from src.core.deps import get_session
-from src.core.auth import authenticate_user, create_access_token, Token
+from src.core.auth import authenticate_user, create_access_token, get_current_user, Token, oauth2_scheme
 
 router = APIRouter()
 
@@ -33,12 +33,21 @@ async def post_user(user: PostPutUserSchema, db: Annotated[AsyncSession, Depends
     return new_user
 
 
+@router.get('/', response_model=ReturnUserSchema)
+async def get_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(get_session)]):
+    print(token)
+    return await get_current_user(token, db)
+
+
 @router.post('/login')
 async def login_user(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[AsyncSession, Depends(get_session)]) -> Token:
     user = await authenticate_user(email=form_data.username, password=form_data.password, db=db)
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return Token(access_token=create_access_token(
         subject=str(user.id)), token_type='bearer')

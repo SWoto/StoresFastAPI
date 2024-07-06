@@ -1,6 +1,7 @@
 import pytest
 from httpx import AsyncClient
 from random import randint
+from jose import jwt
 
 
 class TestUser():
@@ -66,11 +67,34 @@ class TestUser():
     @pytest.mark.anyio
     async def test_login_user_wrong_password(self, async_client: AsyncClient, registered_user: dict):
         response = await self.login_user(async_client, self.user_data['email'], str(randint(1, 100000000)))
-        assert response.status_code == 400
+        assert response.status_code == 401
 
     @pytest.mark.anyio
     async def test_login_user_random_username(self, async_client: AsyncClient, registered_user: dict):
         temp_data = self.user_data.copy()
         temp_data['email'] = str(randint(1, 999))+temp_data['email']
         response = await self.login_user(async_client, temp_data['email'], self.user_data['password'])
-        assert response.status_code == 400
+        assert response.status_code == 401
+
+    @pytest.mark.anyio
+    async def test_get_user_from_token(self, async_client: AsyncClient, logged_in_token: str):
+        response = await async_client.get(
+            "/api/v1/users/", headers={'Authorization': f'Bearer {logged_in_token}'})
+
+        assert response.status_code == 200
+
+        data_src = self.user_data.copy()
+
+        data_src["id"] = response.json()["id"]
+        data_src.pop("password")
+
+        assert response.json().items() <= data_src.items()
+
+    @pytest.mark.anyio
+    async def test_get_user_from_random_token(self, async_client: AsyncClient, logged_in_token: str):
+        random_jwt = jwt.encode(
+            {'some': 'not so random payload'}, 'my deepest secret', algorithm='HS256')
+        response = await async_client.get(
+            "/api/v1/users/", headers={'Authorization': f'Bearer {random_jwt}'})
+
+        assert response.status_code == 401

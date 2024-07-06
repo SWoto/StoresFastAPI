@@ -12,4 +12,4 @@ docker compose up --build
 ```
 to force building the containers.
 
-To test, open the container where the api is running, outsite `src` folder and run `pytest --log-cli-level=DEBUG`
+To test, open the container where the api is running, outsite `src` (`/home`) folder and run `pytest --log-cli-level=DEBUG`
