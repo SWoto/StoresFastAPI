@@ -33,3 +33,6 @@ class UsersModel(BaseModel):
         query = select(cls).filter_by(document=document)
         result = await db.execute(query)
         return result.scalars().unique().one_or_none()
+
+    def is_admin(self):
+        return self.admin

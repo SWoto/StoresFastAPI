@@ -1,15 +1,15 @@
-from src.main import app
-from src.core.database import engine, create_tables, drop_tables, Session
-from src.core.configs import settings
-import os
 import pytest
 from typing import AsyncGenerator, Generator
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.testclient import TestClient
 from httpx import AsyncClient, ASGITransport
 
+import os
 os.environ["ENV_STATE"] = "test"
+
+from src.main import app
+from src.core.database import engine, create_tables, drop_tables, Session
+from src.core.configs import settings
 
 
 @pytest.fixture(scope="session")
