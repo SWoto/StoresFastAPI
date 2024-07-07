@@ -1,3 +1,4 @@
+from functools import wraps
 import logging
 
 from pytz import timezone
@@ -13,6 +14,7 @@ from pydantic import BaseModel, EmailStr
 from src.models import UsersModel
 from src.core.configs import settings
 from src.core.security import check_password
+from src.core.deps import get_session
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +69,7 @@ async def authenticate_user(email: EmailStr, password: str, db: AsyncSession) ->
         return user
 
 
-async def get_current_user(token: str, db: AsyncSession) -> Optional[UsersModel]:
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Annotated[AsyncSession, Depends(get_session)]) -> Optional[UsersModel]:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -85,3 +87,16 @@ async def get_current_user(token: str, db: AsyncSession) -> Optional[UsersModel]
     if user is None:
         raise credentials_exception
     return user
+
+
+def authorize():
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            user = kwargs.get("current_user")
+            if not user.is_admin():
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN)
+            return await func(*args, **kwargs)
+        return wrapper
+    return decorator

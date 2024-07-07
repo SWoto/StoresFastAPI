@@ -79,7 +79,6 @@ def configure_logging() -> None:
                     "level": "DEBUG" if isinstance(settings, DevConfig) else "INFO",
                     "propagate": False
                 },
-                "databases": {"handlers": ["default"], "level": "WARNING"},
             }
         }
     )
