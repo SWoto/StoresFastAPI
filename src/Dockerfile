@@ -9,6 +9,7 @@ RUN apt install curl
 # permissions and nonroot user for tightened security
 RUN adduser nonroot --disabled-password
 RUN mkdir /home/src/ && chown -R nonroot:nonroot /home/src
+RUN mkdir /home/logs/ && chown -R nonroot:nonroot /home/logs
 #RUN mkdir -p /var/log/flask-app && touch /var/log/flask-app/flask-app.err.log && touch /var/log/flask-app/flask-app.out.log
 #RUN chown -R nonroot:nonroot /var/log/flask-app
 WORKDIR /home/src

@@ -1,3 +1,5 @@
+import logging
+
 from pytz import timezone
 from typing import Annotated, List, Literal, Optional
 from datetime import datetime, timedelta
@@ -12,6 +14,9 @@ from src.models import UsersModel
 from src.core.configs import settings
 from src.core.security import check_password
 
+logger = logging.getLogger(__name__)
+
+
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_STR}/users/login"
 )
@@ -23,6 +28,7 @@ class Token(BaseModel):
 
 
 def create_token(token_type: str, life_time: timedelta, subject: str) -> str:
+    logger.debug("Creating access token", extra={"id": subject})
     payload = {}  # More about at: https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.3
     timezone_sao_paulo = timezone('America/Sao_Paulo')
     expires_on = datetime.now(tz=timezone_sao_paulo) + life_time
@@ -41,6 +47,7 @@ def create_access_token(subject: str) -> str:
 
 
 async def get_user(db: AsyncSession, **kwargs) -> Optional[UsersModel]:
+    logger.debug("Fetching user from the database", extra=kwargs)
     async with db as session:
         if kwargs.get('email'):
             return await UsersModel.find_by_email(kwargs['email'], session)
@@ -51,6 +58,7 @@ async def get_user(db: AsyncSession, **kwargs) -> Optional[UsersModel]:
 
 
 async def authenticate_user(email: EmailStr, password: str, db: AsyncSession) -> Optional[UsersModel]:
+    logger.debug("Authenticating user", extra={"email": email})
     user = await get_user(db, email=email)
     if (not user or
             not check_password(password, user.password)):
