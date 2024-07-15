@@ -1,6 +1,10 @@
 # Database volumes
 database/
 
+# Remove all log files and log folder
+*.log*
+/logs
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

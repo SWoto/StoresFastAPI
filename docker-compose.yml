@@ -31,10 +31,19 @@ services:
     volumes:
       - ./database/pgadmin-data/:/var/lib/pgadmin/
 
+  rabbitmq:
+    image: 'rabbitmq:3-management-alpine'
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   fastapi-stores:
     build:
       context: src
       dockerfile: Dockerfile
+    container_name: storesapi
     restart: unless-stopped
     environment:
       ENV_STATE: 'dev'
@@ -42,6 +51,7 @@ services:
       - '8001:8000'
     depends_on:
       - database
+      - rabbitmq
     expose:
       - 8001
     volumes:

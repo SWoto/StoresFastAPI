@@ -34,3 +34,4 @@ python-json-logger
 rich
 asgi-correlation-id
 aiofiles
+pika
