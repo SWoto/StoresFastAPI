@@ -22,6 +22,7 @@ class PostPutUserSchema(PlainUserSchema):
 
 class ReturnUserSchema(PlainUserSchema):
     id: UUID4
+    confirmed: bool
 
 
 class LoginUserSchema(BaseModel):

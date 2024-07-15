@@ -35,3 +35,4 @@ rich
 asgi-correlation-id
 aiofiles
 pika
+redis

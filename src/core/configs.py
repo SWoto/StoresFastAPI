@@ -23,7 +23,8 @@ class GlobalConfig(BaseConfig):
 
     JWT_SECRET: str = secrets.token_hex(64)
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60*24*7  # 1 week
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60*24*1  # 1 day
+    CONFIRMATION_TOKEN_EXPIRE_MINUTES: int = 30  # 30 minutes
 
     DATABASE_URL: Optional[str] = None
     POSTGRES_USER: Optional[str] = None
@@ -32,11 +33,21 @@ class GlobalConfig(BaseConfig):
     POSTGRES_PORT: Optional[int] = None
     POSTGRES_HOST: Optional[str] = None
 
+    RABBITMQ_URL: Optional[str] = None
+    RABBITMQ_USER: Optional[str] = None
+    RABBITMQ_PASS: Optional[str] = None
+    RABBITMQ_HOST: Optional[str] = None
+    RABBITMQ_PORT: Optional[int] = None
+
+    REDIS_HOST: Optional[str] = None
+    REDIS_PORT: Optional[int] = None
+
     DBBaseModel: Any = declarative_base()
 
     def __init__(self):
         super(GlobalConfig, self).__init__()
         self.DATABASE_URL = f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        self.RABBITMQ_URL = f'amqp://{self.RABBITMQ_USER}:{self.RABBITMQ_PASS}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}/%2F?connection_attempts=3&heartbeat=3600'
 
 
 class DevConfig(GlobalConfig):
@@ -49,23 +60,6 @@ class ProdConfig(GlobalConfig):
 
 class TestConfig(GlobalConfig):
     model_config = SettingsConfigDict(env_prefix="TEST_")
-
-
-""" class Settings(BaseSettings):
-    API_V1_STR: str = '/api/v1'
-    # TODO: change DB URL based on the enviroment, if test, dev or prod
-    DB_URL: str = "postgresql+asyncpg://Making4751:underdog-squishy-lushness@127.0.0.1:5432/testinho_db"
-    DBBaseModel: Any = declarative_base()
-
-    JWT_SECRET: str = "CcCknY1Lo38kjQwerJEFMuFQr8AFc-4YL4WAPAXmmdj-deQ"
-    ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60*24*7  # 1 week
-
-    model_config = dict(case_sensitive=True)
-
-
-settings: Settings = Settings()
- """
 
 
 @lru_cache

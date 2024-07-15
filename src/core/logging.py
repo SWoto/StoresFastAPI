@@ -45,13 +45,13 @@ def configure_logging() -> None:
             "formatters": {
                 "console": {
                     "class": "logging.Formatter",
-                    "datefmt": "%Y-%m-%dT%H:%M:%S",
+                    "datefmt": "%Y-%m-%dT%H:%M:%S%z",
                     "format": "(%(correlation_id)s) %(name)s:%(lineno)d - %(message)s",
                 },
                 "file": {
                     "class": "pythonjsonlogger.jsonlogger.JsonFormatter",
-                    "datefmt": "%Y-%m-%dT%H:%M:%S",
-                    "format": "%(asctime)s %(msecs)03d %(levelname)s %(correlation_id)s %(name)s %(lineno)d %(message)s",
+                    "datefmt": "%Y-%m-%dT%H:%M:%S%z",
+                    "format": "%(asctime)s %(levelname)s %(correlation_id)s %(name)s %(lineno)d %(message)s",
                 },
             },
             "handlers": {
