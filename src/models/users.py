@@ -14,7 +14,7 @@ class UsersModel(BaseModel):
     document = Column(String(50), unique=True, index=True)
     email = Column(String(256), unique=True, index=True)
     password = Column(LargeBinary, nullable=False)
-    admin = Column(Boolean, default=False)
+    role = Column(String(50), nullable=False, default="none")
     confirmed = Column(Boolean, default=False)
 
     def __init__(self, *args, **kwargs):
@@ -22,7 +22,7 @@ class UsersModel(BaseModel):
         self.password = generate_hashed_password(kwargs["password"])
 
     def __repr__(self) -> str:
-        return f"<UsersModel(id={self.id}, first_name={self.first_name}, sur_name={self.sur_name}, document={self.document}, email={self.email}, created_on={self.created_on}, modified_on={self.modified_on}, admin={self.admin}, confirmed={self.confirmed})>"
+        return f"<UsersModel(id={self.id}, first_name={self.first_name}, sur_name={self.sur_name}, document={self.document}, email={self.email}, role={self.role}, confirmed={self.confirmed}, created_on={self.created_on}, modified_on={self.modified_on})>"
 
     @classmethod
     async def find_by_email(cls, email: str, db: AsyncSession) -> Optional['UsersModel']:
@@ -35,9 +35,6 @@ class UsersModel(BaseModel):
         query = select(cls).filter_by(document=document)
         result = await db.execute(query)
         return result.scalars().unique().one_or_none()
-
-    def is_admin(self) -> bool:
-        return self.admin
 
     def has_confirmed(self) -> bool:
         return self.confirmed

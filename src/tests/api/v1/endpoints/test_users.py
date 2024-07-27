@@ -12,7 +12,7 @@ from src.models import UsersModel
 
 class TestUser():
     user_data = {'email': 'test1@example.net', "first_name": "Alison",
-                 "sur_name": "Brown", "document": "12345678901", "password": "ito2i23f#$@%@#Vcsa13", "admin": False, "confirmed": False}
+                 "sur_name": "Brown", "document": "12345678901", "password": "ito2i23f#$@%@#Vcsa13", "role": "none", "confirmed": False}
 
     @staticmethod
     async def register_user(async_client: AsyncClient, user_data: dict) -> dict:
@@ -147,7 +147,7 @@ class TestUser():
         id_to_be_requested = registered_user['id']
 
         admin_user = self.user_data.copy()
-        admin_user['admin'] = True
+        admin_user['role'] = "admin"
         admin_user['email'] = str(randint(1, 999))+admin_user['email']
         admin_user['document'] = str(randint(1, 100000000))
         register_response = await self.register_user(async_client, admin_user)
@@ -184,7 +184,7 @@ class TestUser():
     @pytest.mark.anyio
     async def test_get_from_id_wrong_id(self, async_client: AsyncClient, registered_user: dict, session: AsyncSession):
         admin_user = self.user_data.copy()
-        admin_user['admin'] = True
+        admin_user['role'] = "admin"
         admin_user['email'] = str(randint(1, 999))+admin_user['email']
         admin_user['document'] = str(randint(1, 100000000))
         response = await self.register_user(async_client, admin_user)

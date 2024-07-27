@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 CHUNK_SIZE = 1024 * 1024
+EXISTING_ROLES = ["admin", "none"]
 
 
 @router.post('/signup', status_code=status.HTTP_201_CREATED, response_model=ReturnUserSchema)
@@ -28,6 +29,9 @@ async def post_user(user: PostPutUserSchema, request: Request, background_tasks:
     new_user = UsersModel(**post_data)
 
     async with db as session:
+        if new_user.role not in EXISTING_ROLES:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid role")
         if await UsersModel.find_by_email(
                 new_user.email, session):
             raise HTTPException(
