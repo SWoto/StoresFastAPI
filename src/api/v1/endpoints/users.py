@@ -7,12 +7,12 @@ from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, Request
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, Request, BackgroundTasks
 
 from src.models import UsersModel
 from src.schemas.users import PostPutUserSchema, ReturnUserSchema
-from src.core.deps import get_session, is_valid_uuid
-from src.core.auth import Token, authenticate_user, create_access_token, create_confirmation_token, send_user_registration_email, get_current_user, authorize, validate_token, blacklist_token
+from src.core.deps import get_session, is_valid_uuid, user_confirmation_email
+from src.core.auth import Token, authenticate_user, create_access_token, create_confirmation_token, get_current_user, RoleChecker, validate_token, blacklist_token
 from src.core.configs import settings, DevConfig
 
 logger = logging.getLogger(__name__)
@@ -22,19 +22,8 @@ router = APIRouter()
 CHUNK_SIZE = 1024 * 1024
 
 
-async def user_confirmation_email(request: Request, user: UsersModel):
-    confirmation_url = request.url_for(
-        "get_confirm_email", token=create_confirmation_token(str(user.id)))
-
-    await send_user_registration_email(user.email, confirmation_url)
-
-    if isinstance(settings, DevConfig):
-        logger.debug(
-            f"Confirmation URL for {user.email} is {confirmation_url}")
-
-
 @router.post('/signup', status_code=status.HTTP_201_CREATED, response_model=ReturnUserSchema)
-async def post_user(user: PostPutUserSchema, request: Request, db: Annotated[AsyncSession, Depends(get_session)]):
+async def post_user(user: PostPutUserSchema, request: Request, background_tasks: BackgroundTasks, db: Annotated[AsyncSession, Depends(get_session)]):
     post_data = user.model_dump()
     new_user = UsersModel(**post_data)
 
@@ -51,7 +40,13 @@ async def post_user(user: PostPutUserSchema, request: Request, db: Annotated[Asy
         session.add(new_user)
         await session.commit()
 
-        await user_confirmation_email(request, new_user)
+        background_tasks.add_task(
+            user_confirmation_email,
+            email=new_user.email,
+            confirmation_url=request.url_for(
+                "get_confirm_email",
+                token=create_confirmation_token(str(new_user.id))),
+        )
 
     return new_user
 
@@ -69,7 +64,7 @@ async def get_confirm_email(token: str, db: Annotated[AsyncSession, Depends(get_
 
     await blacklist_token(payload)
 
-    return
+    return {"detail": "User confirmed"}
 
 
 @router.get('/', response_model=ReturnUserSchema)
@@ -78,8 +73,7 @@ async def get_user(current_user: Annotated[UsersModel, Depends(get_current_user)
 
 
 @router.get('/{id}', response_model=ReturnUserSchema)
-@authorize('admin')
-async def get_user_by_id(id: str, current_user: Annotated[UsersModel, Depends(get_current_user)], db: Annotated[AsyncSession, Depends(get_session)]):
+async def get_user_by_id(id: str, _: Annotated[str, Depends(RoleChecker(allowed_roles=["admin"]))], db: Annotated[AsyncSession, Depends(get_session)]):
     if not is_valid_uuid(id):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND)
@@ -114,8 +108,7 @@ async def login_user(request: Request, form_data: Annotated[OAuth2PasswordReques
 
 # TODO: This will integrate with mqtt for some heavy lifting
 @router.post('/import/upload')
-@authorize('admin')
-async def post_create_from_csv(file: UploadFile):
+async def post_upload_csv(file: UploadFile, _: Annotated[str, Depends(RoleChecker(allowed_roles=["admin"]))]):
     try:
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
             filename = temp_file.name

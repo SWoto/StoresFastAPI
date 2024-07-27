@@ -41,6 +41,3 @@ class UsersModel(BaseModel):
 
     def has_confirmed(self) -> bool:
         return self.confirmed
-
-    async def confirmation(self) -> None:
-        self.confirmed = True

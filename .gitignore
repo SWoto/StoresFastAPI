@@ -1,5 +1,6 @@
 # Database volumes
 database/
+cache/
 
 # Remove all log files and log folder
 *.log*

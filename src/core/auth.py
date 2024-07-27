@@ -16,7 +16,6 @@ from src.models import UsersModel
 from src.core.configs import settings
 from src.core.security import check_password
 from src.core.deps import get_session
-from src.core.mqtt import aiorabbit
 from src.core.blocklist import jwt_redis_blocklist
 
 
@@ -135,28 +134,15 @@ async def get_current_user(payload: Annotated[dict, Depends(validate_token)], db
     return user
 
 
-# default as admin to err on the side of safety
-def authorize(role: Literal["all", "admin"] = "admin"):
-    def decorator(func):
-        @wraps(func)
-        async def wrapper(current_user: Annotated[UsersModel, Depends(get_current_user)], *args, **kwargs):
-            if not current_user.is_admin() and role != 'all':
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN)
-            return await func(*args, **kwargs)
-        return wrapper
-    return decorator
+class RoleChecker:
+  def __init__(self, allowed_roles):
+    self.allowed_roles = allowed_roles
 
-
-# TODO: MQTT
-async def send_user_registration_email(email: str, confirmation_url: str):
-    subject = "Successfully signed up - Confirm your email"
-    body = (
-        f"Hi {email}! You have successfully signed up to the StoresFastAPI."
-        " Please confirm your email by clicking on the"
-        f" following link: {confirmation_url}.\n"
-        "Note: This link is valid only for 30 minutes."
-    )
-    payload = {'subject': subject, 'body': body}
-    aiorabbit.publish_message(payload)
-    pass
+  def __call__(self, user: Annotated[UsersModel, Depends(get_current_user)]):
+    #if user.role in self.allowed_roles:
+    if user.is_admin() or 'all' in self.allowed_roles:
+      return True
+    raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, 
+            detail="You don't have enough permissions"
+        )
