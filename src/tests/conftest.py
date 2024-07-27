@@ -4,12 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.testclient import TestClient
 from httpx import AsyncClient, ASGITransport
 
+
 import os
 os.environ["ENV_STATE"] = "test"
 
-from src.main import app
-from src.core.database import engine, create_tables, drop_tables, Session
 from src.core.configs import settings
+from src.core.database import engine, create_tables, drop_tables, Session
+from src.main import app
 
 
 @pytest.fixture(scope="session")
@@ -23,7 +24,7 @@ def client() -> Generator:
 
 
 @pytest.fixture(autouse=True)
-async def get_session() -> AsyncGenerator:
+async def session() -> AsyncGenerator:
     async with Session() as session:
         await create_tables()
         yield session
