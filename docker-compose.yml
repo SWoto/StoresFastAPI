@@ -8,6 +8,13 @@ services:
     volumes: 
       - ./cache/:/data/
 
+  redis-test:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - '6380:6379'
+    command: redis-server --save 20 1 --loglevel debug
+
   database:
     image: 'postgres:16-alpine'
     restart: unless-stopped
@@ -25,8 +32,6 @@ services:
       - '5433:5432'
     env_file:
       - src/core/.env
-    volumes:
-      - ./database/db-test-data/:/var/lib/postgresql/data/
 
   pgadmin:
     image: dpage/pgadmin4
