@@ -22,8 +22,7 @@ router = APIRouter()
 CHUNK_SIZE = 1024 * 1024
 EXISTING_ROLES = ["admin", "none"]
 
-
-@router.post('/signup', status_code=status.HTTP_201_CREATED, response_model=ReturnUserSchema)
+@router.post('/signup', status_code=status.HTTP_201_CREATED, response_model=ReturnUserSchema, tags=["Authentication"], summary="User Signup", description="Register a new user.")
 async def post_user(user: PostPutUserSchema, request: Request, background_tasks: BackgroundTasks, db: Annotated[AsyncSession, Depends(get_session)]):
     post_data = user.model_dump()
     new_user = UsersModel(**post_data)
@@ -54,8 +53,7 @@ async def post_user(user: PostPutUserSchema, request: Request, background_tasks:
 
     return new_user
 
-
-@router.get('/confirm/{token}', status_code=status.HTTP_202_ACCEPTED)
+@router.get('/confirm/{token}', status_code=status.HTTP_202_ACCEPTED, tags=["Authentication"], summary="Email Confirmation", description="Confirm a user's email address using the token.")
 async def get_confirm_email(token: str, db: Annotated[AsyncSession, Depends(get_session)]):
     payload = await validate_token(token, "confirmation")
     user = await get_current_user(payload, db)
@@ -70,13 +68,11 @@ async def get_confirm_email(token: str, db: Annotated[AsyncSession, Depends(get_
 
     return {"detail": "User confirmed"}
 
-
-@router.get('/', response_model=ReturnUserSchema)
+@router.get('/', response_model=ReturnUserSchema, tags=["Users"], summary="Get Current User", description="Retrieve the currently authenticated user's details.")
 async def get_user(current_user: Annotated[UsersModel, Depends(get_current_user)]):
     return current_user
 
-
-@router.get('/{id}', response_model=ReturnUserSchema)
+@router.get('/{id}', response_model=ReturnUserSchema, tags=["Users", "Admin"], summary="Get User by ID", description="Retrieve a user's details by their ID. Only accessible to admin users.")
 async def get_user_by_id(id: str, _: Annotated[str, Depends(RoleChecker(allowed_roles=["admin"]))], db: Annotated[AsyncSession, Depends(get_session)]):
     if not is_valid_uuid(id):
         raise HTTPException(
@@ -90,7 +86,7 @@ async def get_user_by_id(id: str, _: Annotated[str, Depends(RoleChecker(allowed_
     return requested_user
 
 
-@router.post('/login')
+@router.post('/login', tags=["Authentication"], summary="User Login", description="Authenticate a user and return an access token.")
 async def login_user(request: Request, form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[AsyncSession, Depends(get_session)]) -> Token:
     user = await authenticate_user(email=form_data.username, password=form_data.password, db=db)
 
@@ -110,8 +106,7 @@ async def login_user(request: Request, form_data: Annotated[OAuth2PasswordReques
         subject=str(user.id)), token_type='bearer')
 
 
-# TODO: This will integrate with mqtt for some heavy lifting
-@router.post('/import/upload')
+@router.post('/import/upload', tags=["Admin"], summary="Upload CSV File", description="Upload a CSV file for data import. Only accessible to admin users.")
 async def post_upload_csv(file: UploadFile, _: Annotated[str, Depends(RoleChecker(allowed_roles=["admin"]))]):
     try:
         with tempfile.NamedTemporaryFile(delete=False) as temp_file:
