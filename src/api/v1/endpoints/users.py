@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, Request, BackgroundTasks
 
 from src.models import UsersModel
-from src.schemas.users import PostPutUserSchema, ReturnUserSchema
+from src.schemas import PostPutUserSchema, ReturnUserSchema
 from src.core.deps import get_session, is_valid_uuid, user_confirmation_email
 from src.core.auth import Token, authenticate_user, create_access_token, create_confirmation_token, get_current_user, RoleChecker, validate_token, blacklist_token
 from src.core.configs import settings, DevConfig

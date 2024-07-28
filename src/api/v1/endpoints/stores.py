@@ -5,8 +5,7 @@ from fastapi import APIRouter, status, Depends, HTTPException
 
 
 from src.models import StoresModel
-from src.schemas.stores import PlainStoreSchema, ReturnStoreSchema
-from src.schemas.nested_schemas import ReturnFullStoresSchema
+from src.schemas import PlainStoreSchema, ReturnStoreSchema, ReturnFullStoresSchema
 from src.core.deps import get_session, is_valid_uuid
 
 
