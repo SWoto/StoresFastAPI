@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 CHUNK_SIZE = 1024 * 1024
-EXISTING_ROLES = ["admin", "none"]
+EXISTING_ROLES = ["admin", "owner", "none"]
 
 @router.post('/signup', status_code=status.HTTP_201_CREATED, response_model=ReturnUserSchema, tags=["Authentication"], summary="User Signup", description="Register a new user.")
 async def post_user(user: PostPutUserSchema, request: Request, background_tasks: BackgroundTasks, db: Annotated[AsyncSession, Depends(get_session)]):
@@ -88,6 +88,13 @@ async def get_user_by_id(id: str, _: Annotated[str, Depends(RoleChecker(allowed_
 
 @router.post('/login', tags=["Authentication"], summary="User Login", description="Authenticate a user and return an access token.")
 async def login_user(request: Request, form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Annotated[AsyncSession, Depends(get_session)]) -> Token:
+    if not form_data.username or "@" not in form_data.username:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Username is not an email",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+     
     user = await authenticate_user(email=form_data.username, password=form_data.password, db=db)
 
     if not user:

@@ -7,6 +7,7 @@ from fastapi import APIRouter, status, Depends, HTTPException
 from src.models import StoresModel
 from src.schemas import PlainStoreSchema, ReturnStoreSchema, ReturnFullStoresSchema
 from src.core.deps import get_session, is_valid_uuid
+from src.core.auth import RoleChecker
 
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ async def _get_store_by_id(id: str, db: Annotated[AsyncSession, Depends(get_sess
     return requested_store
 
 @router.post('/', status_code=status.HTTP_201_CREATED, response_model=ReturnStoreSchema)
-async def post_store(store: PlainStoreSchema, db: Annotated[AsyncSession, Depends(get_session)]):
+async def post_store(store: PlainStoreSchema, db: Annotated[AsyncSession, Depends(get_session)], _: Annotated[str, Depends(RoleChecker(allowed_roles=["owner"]))]):
     post_data = store.model_dump()
     new_store = StoresModel(**post_data)
 
