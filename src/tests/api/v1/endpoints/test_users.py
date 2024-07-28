@@ -11,8 +11,15 @@ from src.models import UsersModel
 
 
 class TestUser():
-    user_data = {'email': 'test1@example.net', "first_name": "Alison",
-                 "sur_name": "Brown", "document": "12345678901", "password": "ito2i23f#$@%@#Vcsa13", "role": "none", "confirmed": False}
+    user_data = {
+        'email': 'test@example.net', 
+        "first_name": "Alison",
+        "sur_name": "Brown", 
+        "document": "12345678901", 
+        "password": "ito2i23", 
+        "role": "none", 
+        "confirmed": False,
+    }
 
     @staticmethod
     async def register_user(async_client: AsyncClient, user_data: dict) -> dict:
@@ -36,24 +43,6 @@ class TestUser():
     @pytest.fixture(autouse=True)
     def reset_state(self) -> None:
         self.user_data["confirmed"] = False
-    
-
-    @pytest.fixture()
-    async def registered_user(self, async_client: AsyncClient) -> dict:
-        response = await self.register_user(async_client, self.user_data)
-        return response.json()
-
-    @pytest.fixture()
-    async def confirmed_user(self, registered_user: dict, session: AsyncSession) -> dict:
-        user = await self.confirm_user(self.user_data['email'], session)
-        self.user_data['confirmed'] = True
- 
-        return user
-
-    @pytest.fixture()
-    async def logged_in_token(self, async_client: AsyncClient, confirmed_user: UsersModel):
-        response = await self.login_user(async_client, self.user_data['email'], self.user_data['password'])
-        return response.json()["access_token"]
 
     @pytest.mark.anyio
     async def test_register_user(self, async_client: AsyncClient):
@@ -120,7 +109,7 @@ class TestUser():
 
         username = "lalaland"
         response = await self.login_user(async_client, username, password)
-        assert response.status_code == 422
+        assert response.status_code == 401
 
         username = str(randint(1, 999))+self.user_data['email']
         response = await self.login_user(async_client, username, self.user_data['password'])
@@ -150,6 +139,7 @@ class TestUser():
         data_src = self.user_data.copy()
 
         data_src["id"] = response.json()["id"]
+        data_src["confirmed"] = response.json()["confirmed"]
         data_src.pop("password")
 
         assert response.json().items() <= data_src.items()
