@@ -108,15 +108,36 @@ class TestUser():
         assert response.status_code == 401
 
     @pytest.mark.anyio
-    async def test_login_user_wrong_password(self, async_client: AsyncClient, confirmed_user: dict):
-        response = await self.login_user(async_client, self.user_data['email'], str(randint(1, 100000000)))
+    async def test_login_user_invalid_username(self, async_client: AsyncClient):
+        username = ""
+        password = "123456"
+        response = await self.login_user(async_client, username, password)
+        assert response.status_code == 422
+
+        username = None
+        response = await self.login_user(async_client, username, password)
+        assert response.status_code == 422
+
+        username = "lalaland"
+        response = await self.login_user(async_client, username, password)
+        assert response.status_code == 422
+
+        username = str(randint(1, 999))+self.user_data['email']
+        response = await self.login_user(async_client, username, self.user_data['password'])
         assert response.status_code == 401
 
     @pytest.mark.anyio
-    async def test_login_user_random_username(self, async_client: AsyncClient, confirmed_user: dict):
-        temp_data = self.user_data.copy()
-        temp_data['email'] = str(randint(1, 999))+temp_data['email']
-        response = await self.login_user(async_client, temp_data['email'], self.user_data['password'])
+    async def test_login_user_invalid_password(self, async_client: AsyncClient, confirmed_user: dict):
+        password = None
+        response = await self.login_user(async_client, self.user_data['email'], password)
+        assert response.status_code == 422
+
+        password = ""
+        response = await self.login_user(async_client, self.user_data['email'], password)
+        assert response.status_code == 422
+
+        password = str(randint(1, 100000000))
+        response = await self.login_user(async_client, self.user_data['email'], password)
         assert response.status_code == 401
 
     @pytest.mark.anyio
