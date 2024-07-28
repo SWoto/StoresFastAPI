@@ -11,7 +11,7 @@ class ReturnProductSchema(ProductSchemaWithoutStore):
     store_id: UUID4
 
 class ReturnFullProductSchema(ProductSchemaWithoutStore):
-    store: PlainStoreSchema
+    store: ReturnStoreSchema
 
 class ReturnFullStoresSchema(ReturnStoreSchema):
-    products: List[PlainProductSchema]
+    products: List[ProductSchemaWithoutStore]
