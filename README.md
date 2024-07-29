@@ -17,5 +17,9 @@ To test, open the container where the api is running, outsite `src` (`/home`) fo
 It is also possible to test functions individually:
 ```python
 pytest src/tests/api/v1/endpoints/test_users.py::TestUser::test_confirm_user --log-cli-level=DEBUG --durations=-0
+
+pytest src/tests/api/v1/endpoints/test_users.py::TestUser --log-cli-level=DEBUG --durations=0
+pytest src/tests/api/v1/endpoints/test_stores.py::TestStore --log-cli-level=DEBUG --durations=0
+pytest src/tests/api/v1/endpoints/test_products.py::TestProduct --log-cli-level=DEBUG --durations=0
 ```
 

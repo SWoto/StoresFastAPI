@@ -12,7 +12,7 @@ class StoresModel(BaseModel):
     description = Column(String(256))
     address = Column(String(256))
 
-    products = relationship("ProductsModel", back_populates="store", cascade="all, delete-orphan")
+    products = relationship("ProductsModel", back_populates="store", cascade="all, delete-orphan", lazy='selectin')
 
     def __init__(self, *args, **kwargs):
         super(StoresModel, self).__init__(*args, **kwargs)
