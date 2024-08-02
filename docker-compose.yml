@@ -1,15 +1,22 @@
 services:
   redis:
     image: redis:7-alpine
+    container_name: redis
     restart: unless-stopped
     ports:
       - '6379:6379'
     command: redis-server --save 20 1 --loglevel warning
     volumes: 
       - ./cache/:/data/
+    deploy:
+      resources:
+        limits:
+          cpus: '0.05'
+          memory: 50M
       
   pgadmin:
     image: dpage/pgadmin4
+    container_name: pgadmin
     restart: unless-stopped
     ports:
       - '15433:80'
@@ -17,6 +24,11 @@ services:
       - src/core/.env
     volumes:
       - ./database/pgadmin-data/:/var/lib/pgadmin/
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
+          memory: 300M
 
   rabbitmq:
     image: 'rabbitmq:3-management-alpine'
@@ -25,6 +37,11 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.15'
+          memory: 200M
 
   fastapi-stores:
     build:
@@ -41,6 +58,11 @@ services:
       - rabbitmq
     expose:
       - 8000
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 200M
     volumes:
       - ./logs/:/home/logs/
     command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --log-level debug --workers 3 --reload
