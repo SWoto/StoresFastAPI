@@ -1,14 +1,15 @@
 # Database volumes
-database/
-cache/
+database/*
+cache/*
 *.rdb
 
 #SSH Connection to AWS
 .ssh/*
+*.pem
 
-# Remove all log files and log folder
+# Remove all log files, but leave log folder due to docker volume
 *.log*
-/logs
+logs/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

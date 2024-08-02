@@ -166,11 +166,4 @@ Git is not installed by default on Amazon Linux. Use the `yum` (Yellowdog Update
    git clone https://github.com/SWoto/StoresFastAPI.git
    ```
 
-3. **Create folders**
-Docker volume uses some other folders that need to be created:
-    - Create a logs folder in `StoresFastAPI/src/logs`
-    - Create a cache folder within `StoresFastAPI/src/cache`
-    - Create a database folder within `StoresFastAPI/src/database`
-       - Due to the volume usage, as instructed in [Mapped Files and Directories](https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html#mapped-files-and-directories), use the command `sudo chown -R 5050:5050 <host_directory>` to give the `database/` folder the needed permissions.
-
 3. **Open the folder within the EC2 through VSCode**
