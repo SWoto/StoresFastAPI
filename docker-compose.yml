@@ -7,32 +7,7 @@ services:
     command: redis-server --save 20 1 --loglevel warning
     volumes: 
       - ./cache/:/data/
-
-  redis-test:
-    image: redis:7-alpine
-    restart: unless-stopped
-    ports:
-      - '6380:6379'
-    command: redis-server --save 20 1 --loglevel debug
-
-  database:
-    image: 'postgres:16-alpine'
-    restart: unless-stopped
-    ports:
-      - '5432:5432'
-    env_file:
-      - src/core/.env
-    volumes:
-      - ./database/db-data/:/var/lib/postgresql/data/
-
-  database-test:
-    image: 'postgres:16-alpine'
-    restart: unless-stopped
-    ports:
-      - '5433:5432'
-    env_file:
-      - src/core/.env
-
+      
   pgadmin:
     image: dpage/pgadmin4
     restart: unless-stopped
@@ -40,8 +15,6 @@ services:
       - '15433:80'
     env_file:
       - src/core/.env
-    depends_on:
-      - database
     volumes:
       - ./database/pgadmin-data/:/var/lib/pgadmin/
 
@@ -62,13 +35,12 @@ services:
     environment:
       ENV_STATE: 'dev'
     ports:
-      - '8001:8000'
+      - '8000:8000'
     depends_on:
-      - database
       - redis
       - rabbitmq
     expose:
-      - 8001
+      - 8000
     volumes:
       - ./logs/:/home/logs/
     command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --log-level debug --workers 3 --reload

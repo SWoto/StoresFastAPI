@@ -3,6 +3,9 @@ database/
 cache/
 *.rdb
 
+#SSH Connection to AWS
+.ssh/*
+
 # Remove all log files and log folder
 *.log*
 /logs

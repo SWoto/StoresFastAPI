@@ -36,13 +36,13 @@ This guide provides instructions on setting up an SSH connection to an AWS EC2 i
 
 ### Step 1: Launch an EC2 Instance
 
-For this project, we will use the `Amazon Linux 2023 AMI` Image with the `t2.nano` instance type. You can choose other configurations based on your requirements.
+For this project, we will use the `Amazon Linux 2023 AMI` Image with the `t2.micro` instance type. You can choose other configurations based on your requirements.
 
 1. **Log in to the AWS Management Console.**
 2. **Navigate to the EC2 Dashboard.**
 3. **Launch a new instance**:
    - Select the `Amazon Linux 2023 AMI`.
-   - Choose the `t2.nano` instance type.
+   - Choose the `t2.micro` instance type.
    - Configure instance details, add storage, and add tags as needed.
    - Configure the security group to allow SSH access (port 22) and "All ICMP - IPv4" from your IP address.
 4. **(Optional) Spot instances**:
@@ -61,7 +61,7 @@ You will need the following information from your EC2 instance:
 
 Refer to the AWS documentation for more details: [Get information about your instance](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-to-linux-instance.html#connection-prereqs-get-info-about-instance).
 
-### Step 3: Basic Connectivity Test
+### Step 3: (Optional) Basic Connectivity Test
 
 To perform a basic connectivity test:
 
@@ -99,22 +99,6 @@ To perform a basic connectivity test:
 5. **Type and select** `Remote-SSH: Connect to Host...`.
 6. **Select the created host on step 4.**
 
-## Download Repository
-
-Git is not installed by default on Amazon Linux. Use the `yum` (Yellowdog Updater, Modified) command to install it.
-
-1. **Update your system and install Git**:
-   ```bash
-   sudo yum update && sudo yum install git
-   ```
-
-2. **Clone this repository**:
-   ```bash
-   git clone https://github.com/SWoto/StoresFastAPI.git
-   ```
-
-3. **Open the folder within the EC2 through VSCode**
-
 ## RDS Instance (AWS)
 
 To set up a managed PostgreSQL database that integrates with the previously created EC2, follow these steps:
@@ -137,3 +121,56 @@ To set up a managed PostgreSQL database that integrates with the previously crea
    - Review the settings and click on `Create database` to launch the RDS instance.
 
 **NOTE:** It is always good to emphasize the importance of creating a Budget Alert. Instructions are in Step 1 of the Setup SSH Connection section.
+
+## Docker on EC2
+The operating system does not have Docker installed by default, so it needs to be installed manually.
+
+1. **Install Docker**:
+   ```
+   sudo yum update -y
+   sudo yum -y install docker
+   ```
+
+2. **Start Docker**:
+   ```
+   sudo service docker start
+   ```
+
+3. **Allow the ec2-user to Access Docker Commands**:
+   ```
+   sudo usermod -a -G docker ec2-user
+   ```
+
+4. **Check Docker version**:
+   - Reboot the instance.
+   - Check the Docker version to ensure it is installed correctly:
+   ```
+   docker version
+   ```
+
+5. **Install Compose CLI plugin**
+    - Follow the instructions at [Install the plugin manually](https://docs.docker.com/compose/install/linux/#install-the-plugin-manually)
+
+
+## Setup the Repository
+
+Git is not installed by default on Amazon Linux. Use the `yum` (Yellowdog Updater, Modified) command to install it.
+
+1. **Update your system and install Git**:
+   ```bash
+   sudo yum update && sudo yum install git
+   ```
+
+2. **Clone this repository**:
+   ```bash
+   git clone https://github.com/SWoto/StoresFastAPI.git
+   ```
+
+3. **Create folders**
+Docker volume uses some other folders that need to be created:
+    - Create a logs folder in `StoresFastAPI/src/logs`
+    - Create a cache folder within `StoresFastAPI/src/cache`
+    - Create a database folder within `StoresFastAPI/src/database`
+       - Due to the volume usage, as instructed in [Mapped Files and Directories](https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html#mapped-files-and-directories), use the command `sudo chown -R 5050:5050 <host_directory>` to give the `database/` folder the needed permissions.
+
+3. **Open the folder within the EC2 through VSCode**
