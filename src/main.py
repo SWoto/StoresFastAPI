@@ -10,15 +10,16 @@ from src.core.configs import settings
 from src.core.mqtt import aiorabbit
 from src.core.logging import configure_logging
 from src.api.v1.api import api_router
-from src.core.database import create_tables
+from src.core.database import create_tables, create_database
 
 
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI, settings = settings):
     configure_logging()
+    await create_database(settings)
     await create_tables()
     aiorabbit.connect()
     yield

@@ -42,19 +42,17 @@ async def create_database(settings):
     logger.info("Checking if DB exists")
     if not await database_exists(base_url, database_name):
         logger.warning(f"Database '{database_name}' does not exist, trying to create it")
-        await create_database(base_url, database_name)
-        logger.info(f"Created database '{database_name}', proceeding to create tables")
-
-    logger.info(f"Attempting to create database '{database_name}' at {engine.url}")
-    engine = create_async_engine(base_url, isolation_level="AUTOCOMMIT", echo=True)
-    async with engine.connect() as conn:
-        try:
-            await conn.execute(text(f"CREATE DATABASE {database_name}"))
-            logger.info(f"Database '{database_name}' created successfully")
-        except Exception as e:
-            logger.error(f"Failed to create database '{database_name}': {e}")
-        finally:
-            await conn.close()
+        engine = create_async_engine(base_url, isolation_level="AUTOCOMMIT", echo=True)
+        async with engine.connect() as conn:
+            try:
+                await conn.execute(text(f"CREATE DATABASE {database_name}"))
+                logger.info(f"Database '{database_name}' created successfully")
+            except Exception as e:
+                logger.error(f"Failed to create database '{database_name}': {e}")
+            finally:
+                await conn.close()
+    else:
+        logger.info("Database exists")
 
 async def create_tables():
     logger.warning(f"Creating tables on DB: {engine.url}")

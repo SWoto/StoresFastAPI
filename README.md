@@ -166,4 +166,10 @@ Git is not installed by default on Amazon Linux. Use the `yum` (Yellowdog Update
    git clone https://github.com/SWoto/StoresFastAPI.git
    ```
 
-3. **Open the folder within the EC2 through VSCode**
+3. **Folders and Permissions**
+   - As instructed in [Mapped Files and Directories](https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html#mapped-files-and-directories), database folder needs to have the propper permissions,
+   ```
+   sudo chown -R 5050:5050 <host_directory>
+   ```
+
+4. **Open the folder within the EC2 through VSCode**
