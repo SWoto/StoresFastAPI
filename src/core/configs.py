@@ -47,7 +47,7 @@ class GlobalConfig(BaseConfig):
     def __init__(self):
         super(GlobalConfig, self).__init__()
         self.DATABASE_URL = f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
-        self.RABBITMQ_URL = f'amqp://{self.RABBITMQ_USER}:{self.RABBITMQ_PASS}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}/%2F?connection_attempts=3&heartbeat=3600'
+        self.RABBITMQ_URL = f'amqps://{self.RABBITMQ_USER}:{self.RABBITMQ_PASS}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}/%2F?connection_attempts=3&heartbeat=3600'
 
 
 class DevConfig(GlobalConfig):
